@@ -1,0 +1,94 @@
+<div class="portfolio-container">
+  <h2 class="section-title">Your Portfolio</h2>
+
+  <div class="balance-box">
+    <strong>💰 Cash Balance: {{liveGoldUpdate}}</strong>
+    <span>{{ portfolio?.cashBalance | currency: 'USD' }}</span>
+  </div>
+
+  <!-- 🟢 Live Market Update -->
+  <div class="live-section">
+    <h3>Live Gold Update</h3>
+    <p [style.color]="priceColor">{{ liveUpdate }}</p>
+  </div>
+
+  <!-- 📊 Portfolio Chart -->
+<div class="chart-section">
+  <h3>📈 Portfolio Distribution</h3>
+
+  <!-- <div class="chart-container" *ngIf="portfolio?.holdings?.length > 0; else noChartData">
+    <canvas id="portfolioChart"></canvas>
+  </div> -->
+
+  <ng-template #noChartData>
+    <p class="no-data-text">No data available to display chart.</p>
+  </ng-template>
+</div>
+
+
+  <!-- 🧾 Holdings (from getId button click) -->
+<h3 class="section-title">📊 Selected User Holdings</h3>
+
+<div class="holdings-container" *ngIf="assetData.length > 0; else noHoldings">
+  <div class="holding-card" *ngFor="let h of assetData">
+    <div class="holding-symbol">
+      <span class="symbol-text">{{ h.symbol | uppercase }}</span>
+    </div>
+    <div class="holding-details">
+      <span class="label">Quantity:</span>
+      <span class="value">{{ h.quantity }}</span>
+    </div>
+  </div>
+</div>
+
+<ng-template #noHoldings>
+  <p class="no-holdings">No holdings found for this user.</p>
+</ng-template>
+  <!-- ⚙️ Trade Form -->
+  <div class="trade-section">
+    <h3>Place Trade</h3>
+    <div class="trade-inputs">
+      <input type="text" placeholder="Symbol" [(ngModel)]="tradeSymbol">
+      <input type="number" placeholder="Quantity" [(ngModel)]="tradeQuantity">
+      <input type="number" placeholder="Price" [(ngModel)]="tradePrice">
+    </div>
+    <div class="trade-buttons">
+      <button class="buy-btn" (click)="buyAsset()">Buy</button>
+      <button class="sell-btn" (click)="sellAsset()">Sell</button>
+    </div>
+    <p class="trade-status">{{ tradeStatus }}</p>
+  </div>
+
+  <!-- 📋 Transactions -->
+  <div class="transactions-section">
+    <h3>Transactions</h3>
+    <table class="transactions-table">
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>ID</th>
+          <th>Type</th>
+          <th>Symbol</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let tx of transactions">
+          <td>
+            <button class="view-btn" (click)="getId(tx.userId)">
+              <i class="fa fa-eye"></i> View
+            </button>
+          </td>
+          <td>{{ tx.id }}</td>
+          <td [ngClass]="{ 'buy': tx.type === 'BUY', 'sell': tx.type === 'SELL' }">{{ tx.type }}</td>
+          <td>{{ tx.symbol }}</td>
+          <td>{{ tx.quantity }}</td>
+          <td>{{ tx.price | number:'1.2-2' }}</td>
+          <td>{{ tx.timestamp | date:'short' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
