@@ -1,0 +1,35 @@
+<!-- <div class="market-container">
+  <h2>📊 Live Market Updates</h2>
+
+  <div *ngIf="marketData; else loading">
+    <h3>{{ marketData.symbol }}</h3>
+    <ul>
+      <li *ngFor="let item of marketData.news">{{ item }}</li>
+    </ul>
+  </div>
+
+  <div class="add-trade">
+  <h2>Add Trade</h2>
+  <input
+    type="text"
+    [(ngModel)]="tradeValue"
+    placeholder="Enter gold price e.g. 89000"
+  />
+  <button (click)="sendUpdate()">Send Update</button>
+</div>
+
+
+<div class="portfolio">
+  <h2>Portfolio Page</h2>
+
+  <p>
+    <strong>Live Gold Update:</strong>
+    <span [style.color]="priceColor">{{ liveUpdate }}</span>
+  </p>
+</div>
+
+
+  <ng-template #loading>
+    <p>Waiting for live market data...</p>
+  </ng-template>
+</div> -->
