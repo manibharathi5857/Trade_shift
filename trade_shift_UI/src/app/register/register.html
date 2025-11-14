@@ -1,0 +1,54 @@
+<div class="register-page">
+  <div class="bg-graphics">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+  </div>
+
+  <div class="register-card">
+    <header class="card-header">
+      <div class="logo">
+        <svg width="40" height="40" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M6 15l3-6 3 4 4-8 2 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="title">
+        <h2>Create Account</h2>
+        <p class="subtitle">Join TradeX and start trading smart</p>
+      </div>
+    </header>
+
+    <!-- ✅ Add (ngSubmit) here -->
+    <form class="register-form" (ngSubmit)="register()">
+
+      <div class="input-group">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          type="text"
+          name="username"               
+          [(ngModel)]="username"
+          placeholder="Enter username"
+          required>
+      </div>
+
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          name="password"              
+          [(ngModel)]="password"
+          placeholder="Enter password"
+          required>
+      </div>
+
+      <button class="cta" type="submit">Register</button>
+
+      <p class="status">
+        Already have an account?
+        <a routerLink="/login" class="link-btn">Login</a>
+      </p>
+    </form>
+  </div>
+</div>

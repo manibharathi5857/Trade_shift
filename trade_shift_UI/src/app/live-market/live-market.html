@@ -1,0 +1,146 @@
+<!-- <div class="p-4">
+  <h2>📡 Live Market Data</h2>
+
+  <p><strong>Status:</strong>
+    <span [class.text-success]="connected" [class.text-danger]="!connected">
+      {{ status }}
+    </span>
+  </p>
+
+  <div *ngIf="dataLoaded" class="card p-3 mt-3 shadow-sm">
+    <p><strong>Symbol:</strong> {{ symbol }}</p>
+    <p><strong>Price:</strong> {{ price }}</p>
+    <p><strong>News:</strong></p>
+    <ul>
+      <li *ngFor="let n of news">{{ n }}</li>
+    </ul>
+    <p><small>⏱️ {{ timestamp }}</small></p>
+  </div>
+
+  <p *ngIf="!dataLoaded" class="text-muted mt-3">Waiting for live data...</p>
+
+  <button (click)="sendTestUpdate()" class="btn btn-primary mt-3">
+    Send Test Update
+  </button>
+</div> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Market Data</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+  <style>
+    .p-4 { padding: 1.5rem; font-family: Arial, sans-serif; }
+    .text-success { color: green; }
+    .text-danger { color: red; }
+    .card { border: 1px solid #ccc; border-radius: 10px; }
+    .mt-3 { margin-top: 1rem; }
+    .shadow-sm { box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; }
+    .btn-primary { background-color: #007bff; color: white; }
+  </style>
+</head>
+
+<body>
+  <div class="p-4">
+    <h2>📡 Live Market Data</h2>
+
+    <p><strong>Status:</strong>
+      <span id="status" class="text-danger">🔴 Disconnected</span>
+    </p>
+
+    <div id="dataCard" class="card p-3 mt-3 shadow-sm" style="display: none;">
+      <p><strong>Symbol:</strong> <span id="symbol"></span></p>
+      <p><strong>Price:</strong> <span id="price"></span></p>
+      <p><strong>News:</strong></p>
+      <ul id="newsList"></ul>
+      <p><small>⏱️ <span id="timestamp"></span></small></p>
+    </div>
+
+    <p id="loading" class="text-muted mt-3">Waiting for live data...</p>
+
+    <button id="sendBtn" class="btn btn-primary mt-3">Send Test Update</button>
+  </div>
+
+  <script>
+    const statusEl = document.getElementById("status");
+    const dataCard = document.getElementById("dataCard");
+    const loadingEl = document.getElementById("loading");
+    const symbolEl = document.getElementById("symbol");
+    const priceEl = document.getElementById("price");
+    const newsList = document.getElementById("newsList");
+    const timestampEl = document.getElementById("timestamp");
+    const sendBtn = document.getElementById("sendBtn");
+
+    // ✅ Spring Boot WebSocket endpoint
+    const token = localStorage.getItem("jwt") || "demo-token";
+    const socket = new SockJS(`http://localhost:8080/ws/market?token=${token}`);
+    const stompClient = new StompJs.Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000,
+      debug: (str) => console.log(str),
+      onConnect: () => {
+        console.log("✅ Connected to WebSocket");
+        statusEl.textContent = "🟢 Connected";
+        statusEl.classList.remove("text-danger");
+        statusEl.classList.add("text-success");
+
+        // Subscribe to topic
+        stompClient.subscribe("/topic/market", (message) => {
+          const data = JSON.parse(message.body);
+          console.log("📦 Data received:", data);
+          updateUI(data);
+        });
+      },
+      onDisconnect: () => {
+        console.log("🔌 Disconnected");
+        statusEl.textContent = "🔴 Disconnected";
+        statusEl.classList.remove("text-success");
+        statusEl.classList.add("text-danger");
+      },
+    });
+
+    stompClient.activate();
+
+    // ✅ Update UI with live data
+    function updateUI(data) {
+      dataCard.style.display = "block";
+      loadingEl.style.display = "none";
+      symbolEl.textContent = data.symbol;
+      priceEl.textContent = data.price.toFixed(2);
+      timestampEl.textContent = new Date(data.timestamp).toLocaleTimeString();
+
+      // Clear and re-render news
+      newsList.innerHTML = "";
+      data.news.forEach((n) => {
+        const li = document.createElement("li");
+        li.textContent = n;
+        newsList.appendChild(li);
+      });
+    }
+
+    // ✅ Send test update
+    sendBtn.addEventListener("click", () => {
+      if (stompClient.connected) {
+        const testData = {
+          symbol: "DOLLAR",
+          news: ["Client-side test update"],
+          price: (Math.random() * 100).toFixed(2),
+          timestamp: Date.now(),
+        };
+        stompClient.publish({
+          destination: "/app/update",
+          body: JSON.stringify(testData),
+        });
+        console.log("📤 Sent:", testData);
+      } else {
+        alert("WebSocket not connected!");
+      }
+    });
+  </script>
+</body>
+</html>

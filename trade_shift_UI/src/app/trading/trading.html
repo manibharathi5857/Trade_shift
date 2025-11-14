@@ -1,0 +1,209 @@
+<div class="trading-app">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <h1>TradePro</h1>
+        <span class="connection-status" [class.connected]="isConnected">
+          {{ isConnected ? '● Live' : '● Disconnected' }}
+        </span>
+      </div>
+      
+      <div class="portfolio-summary">
+        <div class="summary-item">
+          <span class="label">Total Value</span>
+          <span class="value">₹{{ currentValue.toFixed(2) }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">P&L</span>
+          <span class="value" [class.positive]="totalPnL >= 0" [class.negative]="totalPnL < 0">
+            {{ totalPnL >= 0 ? '+' : '' }}₹{{ totalPnL.toFixed(2) }} 
+            ({{ totalPnL >= 0 ? '+' : '' }}{{ totalPnLPercent.toFixed(2) }}%)
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-content">
+    <!-- Sidebar - Watchlist -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Watchlist</h2>
+      </div>
+      
+      <div class="stock-list">
+        <div *ngFor="let stock of stocks" 
+             class="stock-item" 
+             [class.selected]="selectedStock?.symbol === stock.symbol"
+             (click)="selectStock(stock)">
+          <div class="stock-info">
+            <div class="stock-symbol">{{ stock.symbol }}</div>
+            <div class="stock-name">{{ stock.name }}</div>
+          </div>
+          <div class="stock-price">
+            <div class="price">₹{{ stock.price.toFixed(2) }}</div>
+            <div class="change" [class.positive]="stock.change >= 0" [class.negative]="stock.change < 0">
+              {{ stock.change >= 0 ? '+' : '' }}{{ stock.changePercent.toFixed(2) }}%
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Trading Area -->
+    <main class="trading-area">
+      <!-- Stock Details -->
+      <section class="stock-details" *ngIf="selectedStock">
+        <div class="stock-header">
+          <div>
+            <h2>{{ selectedStock.symbol }}</h2>
+            <p class="company-name">{{ selectedStock.name }}</p>
+          </div>
+          <div class="stock-price-large">
+            <div class="price">₹{{ selectedStock.price.toFixed(2) }}</div>
+            <div class="change" [class.positive]="selectedStock.change >= 0" [class.negative]="selectedStock.change < 0">
+              {{ selectedStock.change >= 0 ? '+' : '' }}₹{{ selectedStock.change.toFixed(2) }} 
+              ({{ selectedStock.change >= 0 ? '+' : '' }}{{ selectedStock.changePercent.toFixed(2) }}%)
+            </div>
+          </div>
+        </div>
+
+        <div class="stock-stats">
+          <div class="stat">
+            <span class="stat-label">High</span>
+            <span class="stat-value">₹{{ selectedStock.high.toFixed(2) }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Low</span>
+            <span class="stat-value">₹{{ selectedStock.low.toFixed(2) }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Volume</span>
+            <span class="stat-value">{{ (selectedStock.volume / 1000000).toFixed(2) }}M</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Last Updated</span>
+            <span class="stat-value">{{ selectedStock.lastUpdated | date:'HH:mm:ss' }}</span>
+          </div>
+        </div>
+
+        <!-- Order Form -->
+        <div class="order-form">
+          <h3>Place Order</h3>
+          
+          <div class="order-type-selector">
+            <button class="order-type-btn buy" 
+                    [class.active]="orderType === 'BUY'"
+                    (click)="orderType = 'BUY'">
+              BUY
+            </button>
+            <button class="order-type-btn sell" 
+                    [class.active]="orderType === 'SELL'"
+                    (click)="orderType = 'SELL'">
+              SELL
+            </button>
+          </div>
+
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" 
+                   [(ngModel)]="orderQuantity" 
+                   min="1" 
+                   class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Price</label>
+            <input type="number" 
+                   [(ngModel)]="orderPrice" 
+                   step="0.01" 
+                   class="form-control">
+          </div>
+
+          <div class="order-summary">
+            <span>Total: ₹{{ (orderQuantity * orderPrice).toFixed(2) }}</span>
+          </div>
+
+          <button class="btn-place-order" 
+                  [class.buy]="orderType === 'BUY'"
+                  [class.sell]="orderType === 'SELL'"
+                  (click)="placeOrder()">
+            {{ orderType }} {{ orderQuantity }} @ ₹{{ orderPrice.toFixed(2) }}
+          </button>
+        </div>
+      </section>
+
+      <!-- Positions & Orders -->
+      <section class="positions-orders">
+        <div class="tabs">
+          <button class="tab" [class.active]="activeTab === 'positions'" (click)="activeTab = 'positions'">Positions</button>
+          <button class="tab" [class.active]="activeTab === 'orders'" (click)="activeTab = 'orders'">Orders</button>
+        </div>
+
+        <!-- Positions Tab -->
+        <div class="positions-list" *ngIf="activeTab === 'positions'">
+          <div class="table-header">
+            <span>Symbol</span>
+            <span>Qty</span>
+            <span>Avg Price</span>
+            <span>LTP</span>
+            <span>P&L</span>
+          </div>
+          
+          <div *ngFor="let position of positions" class="table-row">
+            <span class="symbol">{{ position.symbol }}</span>
+            <span>{{ position.quantity }}</span>
+            <span>₹{{ position.avgPrice.toFixed(2) }}</span>
+            <span>₹{{ position.currentPrice.toFixed(2) }}</span>
+            <span [class.positive]="position.pnl >= 0" [class.negative]="position.pnl < 0">
+              {{ position.pnl >= 0 ? '+' : '' }}₹{{ position.pnl.toFixed(2) }}
+              <small>({{ position.pnl >= 0 ? '+' : '' }}{{ position.pnlPercent.toFixed(2) }}%)</small>
+            </span>
+          </div>
+
+          <div *ngIf="positions.length === 0" class="empty-state">
+            No positions yet. Place your first order!
+          </div>
+        </div>
+
+        <!-- Orders Tab -->
+        <div class="orders-list" *ngIf="activeTab === 'orders'">
+          <div class="table-header">
+            <span>Time</span>
+            <span>Symbol</span>
+            <span>Type</span>
+            <span>Qty</span>
+            <span>Price</span>
+            <span>Status</span>
+            <span>Action</span>
+          </div>
+          
+          <div *ngFor="let order of orders" class="table-row">
+            <span>{{ order.timestamp | date:'HH:mm:ss' }}</span>
+            <span class="symbol">{{ order.symbol }}</span>
+            <span [class.buy-text]="order.type === 'BUY'" [class.sell-text]="order.type === 'SELL'">
+              {{ order.type }}
+            </span>
+            <span>{{ order.quantity }}</span>
+            <span>₹{{ order.price.toFixed(2) }}</span>
+            <span class="status" [class]="order.status.toLowerCase()">
+              {{ order.status }}
+            </span>
+            <span>
+              <button *ngIf="order.status === 'PENDING'" 
+                      class="btn-cancel" 
+                      (click)="cancelOrder(order)">
+                Cancel
+              </button>
+            </span>
+          </div>
+
+          <div *ngIf="orders.length === 0" class="empty-state">
+            No orders placed yet.
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>

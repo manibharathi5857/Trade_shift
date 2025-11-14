@@ -1,0 +1,82 @@
+<div class="login-page">
+  <div class="bg-graphics">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+  </div>
+
+  <div class="login-card">
+    <header class="card-header">
+      <div class="logo">
+        <svg width="40" height="40" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M6 15l3-6 3 4 4-8 2 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="title">
+        <h2>TradeX</h2>
+        <p class="subtitle">Fast • Secure • Smart</p>
+      </div>
+    </header>
+
+    <div class="market-ticker">
+      <div class="ticker-left">
+        <strong>LIVE</strong>
+        <span class="symbol">NIFTY</span>
+        <span class="price">22,435.25</span>
+        <span class="change up">+0.42%</span>
+      </div>
+      <div class="sparkline">
+        <svg viewBox="0 0 100 24" preserveAspectRatio="none">
+          <polyline points="0,18 12,12 24,8 36,10 48,6 60,9 72,4 84,6 96,2" fill="none" stroke="currentColor" stroke-width="1"/>
+        </svg>
+      </div>
+    </div>
+
+    <form class="login-form" (ngSubmit)="login()">
+      <div class="input-group">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          type="text"
+          name="username"              
+          [(ngModel)]="username"
+          placeholder="Enter username"
+          required>
+      </div>
+
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          name="password"             
+          [(ngModel)]="password"
+          placeholder="Enter password"
+          required>
+      </div>
+
+      <div class="row options">
+        <label class="remember">
+          <input type="checkbox"> Remember me
+        </label>
+        <a class="link" href="#">Forgot?</a>
+      </div>
+
+      <button class="cta" type="submit">Sign in</button>
+
+      <div class="alt-login">
+        <p>or continue with</p>
+        <div class="socials">
+          <button type="button">G</button>
+          <button type="button"></button>
+          <button type="button">📱</button>
+        </div>
+      </div>
+
+      <p class="create">
+        New to TradeX?
+        <a class="link-btn" (click)="goToRegister()">Create an account</a>
+      </p>
+    </form>
+  </div>
+</div>
